@@ -49,6 +49,11 @@ interface TimePickerController {
     boolean isPmDisabled();
 
     /**
+     * @return boolean - whether to hide the AM/PM options completely when they are disabled
+     */
+    boolean hideAmPmWhenDisabled();
+
+    /**
      * Will round the given Timepoint to the nearest valid Timepoint given the following restrictions:
      *   - TYPE.HOUR, it will just round to the next valid point, possible adjusting minutes and seconds
      *   - TYPE.MINUTE, it will round to the next valid point, without adjusting the hour, but possibly adjusting the seconds

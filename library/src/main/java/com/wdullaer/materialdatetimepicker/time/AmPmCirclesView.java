@@ -67,6 +67,7 @@ public class AmPmCirclesView extends View {
     private int mAmPmYCenter;
     private int mAmOrPm;
     private int mAmOrPmPressed;
+    private boolean mHideWhenDisabled;
 
     public AmPmCirclesView(Context context) {
         super(context);
@@ -113,6 +114,7 @@ public class AmPmCirclesView extends View {
 
         mAmDisabled = controller.isAmDisabled();
         mPmDisabled = controller.isPmDisabled();
+        mHideWhenDisabled = controller.hideAmPmWhenDisabled();
 
         setAmOrPm(amOrPm);
         mAmOrPmPressed = -1;
@@ -216,18 +218,29 @@ public class AmPmCirclesView extends View {
         }
 
         // Draw the two circles.
-        mPaint.setColor(amColor);
-        mPaint.setAlpha(amAlpha);
-        canvas.drawCircle(mAmXCenter, mAmPmYCenter, mAmPmCircleRadius, mPaint);
-        mPaint.setColor(pmColor);
-        mPaint.setAlpha(pmAlpha);
-        canvas.drawCircle(mPmXCenter, mAmPmYCenter, mAmPmCircleRadius, mPaint);
+        if (!(mAmDisabled && mHideWhenDisabled)) {
+            mPaint.setColor(amColor);
+            mPaint.setAlpha(amAlpha);
+            canvas.drawCircle(mAmXCenter, mAmPmYCenter, mAmPmCircleRadius, mPaint);
+        }
+
+        if (!(mPmDisabled && mHideWhenDisabled)) {
+            mPaint.setColor(pmColor);
+            mPaint.setAlpha(pmAlpha);
+            canvas.drawCircle(mPmXCenter, mAmPmYCenter, mAmPmCircleRadius, mPaint);
+        }
 
         // Draw the AM/PM texts on top.
-        mPaint.setColor(amTextColor);
         int textYCenter = mAmPmYCenter - (int) (mPaint.descent() + mPaint.ascent()) / 2;
-        canvas.drawText(mAmText, mAmXCenter, textYCenter, mPaint);
-        mPaint.setColor(pmTextColor);
-        canvas.drawText(mPmText, mPmXCenter, textYCenter, mPaint);
+
+        if (!(mAmDisabled && mHideWhenDisabled)) {
+            mPaint.setColor(amTextColor);
+            canvas.drawText(mAmText, mAmXCenter, textYCenter, mPaint);
+        }
+
+        if (!(mAmDisabled && mHideWhenDisabled)) {
+            mPaint.setColor(pmTextColor);
+            canvas.drawText(mPmText, mPmXCenter, textYCenter, mPaint);
+        }
     }
 }

@@ -25,13 +25,15 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Typeface;
 import android.graphics.Paint.Align;
+import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 
 import com.wdullaer.materialdatetimepicker.R;
+
+import static com.wdullaer.materialdatetimepicker.time.TimePickerDialog.HOUR_INDEX;
 
 /**
  * A view to show a series of numbers in a circular pattern.
@@ -394,6 +396,19 @@ public class RadialTextsView extends View {
         return mReappearAnimator;
     }
 
+    @SuppressWarnings("unused")
+    public static SelectionValidator getHourValidator(final Timepoint currentTime, final TimePickerController controller, final boolean is24HourMode) {
+        return new RadialTextsView.SelectionValidator() {
+            @Override
+            public boolean isValidSelection(int selection) {
+                Timepoint newTime = new Timepoint(selection, currentTime.getMinute(), currentTime.getSecond());
+                if(!is24HourMode && currentTime.isPM()) newTime.setPM();
+                if(!is24HourMode && currentTime.isAM()) newTime.setAM();
+                return !controller.isOutOfRange(newTime, HOUR_INDEX);
+            }
+        };
+    }
+
     private class InvalidateUpdateListener implements AnimatorUpdateListener {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
@@ -401,7 +416,7 @@ public class RadialTextsView extends View {
         }
     }
 
-    interface SelectionValidator {
+    public interface SelectionValidator {
         boolean isValidSelection(int selection);
     }
 }

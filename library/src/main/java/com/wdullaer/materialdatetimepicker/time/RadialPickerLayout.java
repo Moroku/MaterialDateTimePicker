@@ -703,6 +703,11 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener {
         }
     }
 
+    void setOverlay(BitmapView.OverlayDetails overlay) {
+        BitmapView view = new BitmapView(getContext(), overlay);
+        addView(view);
+    }
+
     private void transitionWithoutAnimation(int index) {
         int hourAlpha = (index == HOUR_INDEX) ? 1 : 0;
         int minuteAlpha = (index == MINUTE_INDEX) ? 1 : 0;

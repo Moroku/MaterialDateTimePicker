@@ -28,6 +28,8 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.FloatRange;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -145,6 +147,9 @@ public class TimePickerDialog extends DialogFragment implements
     private Version mVersion;
     private DefaultTimepointLimiter mDefaultLimiter = new DefaultTimepointLimiter();
     private TimepointLimiter mLimiter = mDefaultLimiter;
+    private boolean mHideAmPmWhenDisabled = false;
+
+    private BitmapView.OverlayDetails mOverlayDetails;
 
     // For hardware IME input.
     private char mPlaceholderText;
@@ -575,6 +580,21 @@ public class TimePickerDialog extends DialogFragment implements
         mLimiter = limiter;
     }
 
+    @SuppressWarnings("unused")
+    public void setOverlayBitmap(@DrawableRes int drawableResId, int size) {
+        mOverlayDetails = new BitmapView.OverlayDetails(drawableResId, size);
+    }
+
+    @SuppressWarnings("unused")
+    public void setOverlayBitmap(@DrawableRes int drawableResId, int size, @FloatRange(from=0.0, to=1.0)float alpha) {
+        mOverlayDetails = new BitmapView.OverlayDetails(drawableResId, size, alpha);
+    }
+
+    @SuppressWarnings("unused")
+    public void setHideAmPmWhenDisabled(boolean hidden) {
+        mHideAmPmWhenDisabled = hidden;
+    }
+
     @Override
     public Version getVersion() {
         return mVersion;
@@ -689,6 +709,10 @@ public class TimePickerDialog extends DialogFragment implements
         mTimePicker.setOnKeyListener(keyboardListener);
         mTimePicker.initialize(getActivity(), this, mInitialTime, mIs24HourMode);
 
+        if (mOverlayDetails != null) {
+            mTimePicker.setOverlay(mOverlayDetails);
+        }
+
         int currentItemShowing = HOUR_INDEX;
         if (savedInstanceState != null &&
                 savedInstanceState.containsKey(KEY_CURRENT_ITEM_SHOWING)) {
@@ -770,7 +794,7 @@ public class TimePickerDialog extends DialogFragment implements
                     mTimePicker.setAmOrPm(amOrPm);
                 }
             };
-            mAmTextView .setVisibility(View.GONE);
+            mAmTextView.setVisibility(View.GONE);
             mPmTextView.setVisibility(View.VISIBLE);
             mAmPmLayout.setOnClickListener(listener);
             if (mVersion == Version.VERSION_2) {
@@ -1035,6 +1059,11 @@ public class TimePickerDialog extends DialogFragment implements
     }
 
     private void updateAmPmDisplay(int amOrPm) {
+        if (mHideAmPmWhenDisabled) {
+            if (isPmDisabled()) mPmTextView.setVisibility(View.INVISIBLE);
+            if (isAmDisabled()) mAmTextView.setVisibility(View.GONE);
+        }
+
         if (mVersion == Version.VERSION_2) {
             if (amOrPm == AM) {
                 mAmTextView.setTextColor(mSelectedColor);
@@ -1142,6 +1171,11 @@ public class TimePickerDialog extends DialogFragment implements
     @Override
     public boolean isPmDisabled() {
         return mLimiter.isPmDisabled();
+    }
+
+    @Override
+    public boolean hideAmPmWhenDisabled() {
+        return mHideAmPmWhenDisabled;
     }
 
     /**
